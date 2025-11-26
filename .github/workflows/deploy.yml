@@ -9,10 +9,6 @@ jobs:
   build_and_push:
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: read
-      packages: write   # <-- NECESARIO PARA SUBIR LA IMAGEN
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,6 +42,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_SSH_PORT }}   # <-- AQUI SE USA EL PUERTO CORRECTO
           script: |
             cd ~/stack-sanchez
             docker compose down
