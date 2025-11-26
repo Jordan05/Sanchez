@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   moreno:
-    image: ghcr.io/jordan05/sanchez
+    image: ghcr.io/jordan05/sanchez:1.0.5
     deploy:
       replicas: 1
       resources:
@@ -20,7 +20,7 @@ services:
         - "traefik.http.routers.sanchez-secure.tls=true"
         - "traefik.http.routers.sanchez-secure.tls.certresolver=http"
         - "traefik.http.routers.sanchez-secure.service=sanchez"
-        - "traefik.http.services.sanchez.loadbalancer.server.port=5000"
+        - "traefik.http.services.sanchez.loadbalancer.server.port=8000"
         - "traefik.docker.network=traefik-public"
       networks:
         - traefik-public
