@@ -9,6 +9,10 @@ jobs:
   build_and_push:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      packages: write   # <-- NECESARIO PARA SUBIR LA IMAGEN
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,9 +48,6 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
             cd ~/stack-sanchez
-
             docker compose down
-
             docker pull ghcr.io/jordan05/sanchez:1.0.5
-
             docker compose up -d --force-recreate
