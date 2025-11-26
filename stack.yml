@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  moreno:
+    image: ghcr.io/jordan05/sanchez:1.0.5
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.sanchez.entrypoints=http"
+        - "traefik.http.routers.sanchez.rule=Host(`sanchez.byronrm.com`)"
+        - "traefik.http.middlewares.sanchez-https-redirect.redirectscheme.scheme=https"
+        - "traefik.http.routers.sanchez.middlewares=sanchez-https-redirect"
+        - "traefik.http.routers.sanchez-secure.entrypoints=https"
+        - "traefik.http.routers.sanchez-secure.rule=Host(`sanchez.byronrm.com`)"
+        - "traefik.http.routers.sanchez-secure.tls=true"
+        - "traefik.http.routers.sanchez-secure.tls.certresolver=http"
+        - "traefik.http.routers.sanchez-secure.service=sanchez"
+        - "traefik.http.services.sanchez.loadbalancer.server.port=5000"
+        - "traefik.docker.network=traefik-public"
+      networks:
+        - traefik-public
+
+networks:
+  traefik-public:
+    external: true
