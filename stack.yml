@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   moreno:
-    image: ghcr.io/jordan05/sanchez:1.0.5
+    image: ghcr.io/jordan05/sanchez
     deploy:
       replicas: 1
       resources:
