@@ -55,7 +55,7 @@ jobs:
             docker compose down
 
             # actualizar imagen
-            docker pull ghcr.io/${{ github.repository }}/sanchez:1.0.5
+            docker pull ghcr.io/${{ Jordan05/sanchez }}/sanchez:1.0.5
 
             # levantar stack
             docker compose up -d --force-recreate
