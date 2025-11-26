@@ -1,30 +1,61 @@
-name: CI
+name: CI-CD
 
 on:
   push:
     branches: [ "Sanchez" ]
-  pull_request:
-    branches: [ "Sanchez" ]
 
 jobs:
-  test_build:
+
+  # ===========================
+  #       JOB 1: BUILD & PUSH
+  # ===========================
+  build_and_push:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.10"
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
+      - name: Build image with correct tag
+        run: |
+          IMAGE_NAME=ghcr.io/${{ github.repository }}/sanchez:1.0.5
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+          docker build -t $IMAGE_NAME .
 
-    - name: Run tests
-      run: pytest -q
+      - name: Push image to GHCR
+        run: |
+          docker push $IMAGE_NAME
 
-    - name: Build docker image
-      run: docker build -t flask-ai-api .
+
+  # ===========================
+  #           JOB 2: DEPLOY
+  # ===========================
+  deploy:
+    needs: build_and_push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Connect to VPS and update container
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            cd ~/stack-sanchez
+
+            # detener contenedor anterior
+            docker compose down
+
+            # actualizar imagen
+            docker pull ghcr.io/${{ github.repository }}/sanchez:1.0.5
+
+            # levantar stack
+            docker compose up -d --force-recreate
